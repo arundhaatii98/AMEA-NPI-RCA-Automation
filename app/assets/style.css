@@ -87,8 +87,18 @@
 .filter-button-container{
     width: auto;
     margin-right: 10px;
+    margin-left: 10px;
+
 }
-.filter-button{
+.filter-button-left{
+    margin: 1px 0px;
+    color:white;
+    background-color:#724D8D;
+    border-color: #724D8D;
+    font-family: mdlz;
+    font-size: 1.1rem;
+}
+.filter-button-right{
     padding: 6px 4px;
     margin: 1px 0px;
     color:white;

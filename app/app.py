@@ -6,16 +6,20 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 import os
-from data_consolidation import generate_consolidated_file, save_consolidated_file
+from data_consolidation import generate_consolidated_file, save_consolidated_file, read_consolidated_file
 from data_prep import get_data
 pd.set_option('mode.chained_assignment', None)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], prevent_initial_callbacks=True)
 
+global df
 # df = generate_consolidated_file()
 # df = pd.read_csv('data/NPI_RCA_v2.csv')
 # df = pd.read_csv('data/NPI_RCA.csv')
-df = pd.read_csv("/mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/NPI_RCA.csv")
+
+df = read_consolidated_file()
+
+# df = pd.read_csv("/mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/NPI_RCA.csv")
 # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\NPI_RCA.csv")
 
 print(df.shape)
@@ -84,8 +88,8 @@ def get_filter_row_1(df, filters, view, filter_labels):
         [
             dbc.Container(
                 dbc.Row([
-                    dbc.Button('Apply', id='filter-apply-'+view, class_name='filter-button'), 
-                    dbc.Button('Clear', id='filter-clear-'+view, class_name='filter-button')
+                    dbc.Button('Apply', id='filter-apply-'+view, class_name='filter-button-right'), 
+                    dbc.Button('Clear', id='filter-clear-'+view, class_name='filter-button-right')
                 ],
                 ),
             class_name='filter-button-container',
@@ -106,7 +110,19 @@ def get_filter_row_2(df, filters, view, filter_labels):
             values.append([item for item in df[filter_labels[i]].dropna().unique()])
         else:
             values.append([item for item in df_filtered[filter_labels[i]].dropna().unique()])
-    row = dbc.Row([
+    row = dbc.Row(
+        [
+            dbc.Container(
+                dbc.Row([
+                    dbc.Button('Refresh', id='refresh-'+view, class_name='filter-button-left'), 
+                ],
+                ),
+            class_name='filter-button-container',
+            fluid=True
+            )
+        ]
+        +
+        [
         dbc.Col(
             dbc.Card(
                 [
@@ -153,8 +169,8 @@ def get_filter_row_2(df, filters, view, filter_labels):
         [
             dbc.Container(
                 dbc.Row([
-                    dbc.Button('Apply', id='filter-apply-'+view, class_name='filter-button'), 
-                    dbc.Button('Clear', id='filter-clear-'+view, class_name='filter-button')
+                    dbc.Button('Apply', id='filter-apply-'+view, class_name='filter-button-right'), 
+                    dbc.Button('Clear', id='filter-clear-'+view, class_name='filter-button-right')
                 ],
                 ),
             class_name='filter-button-container',
@@ -456,7 +472,7 @@ def get_rca_row(df):
     ])
     return content
 
-def get_rca_content(df, filters):
+def get_rca_content(df, filters):    
     df = get_data(df, 'calculate')
     df = get_filtered_df(df, filters)
     content = dbc.Container(
@@ -513,7 +529,8 @@ def get_tabs():
             active_label_style={'backgroundColor':'#4F2170', 'color':'white'},
         )
         for i in range(5)],
-        active_tab='tab-2'
+        active_tab='tab-2',
+        id='tab'
         )
     return tabs
 
@@ -541,8 +558,8 @@ filter_labels_1 = ['Month', 'BU', 'Country', 'Location Code', 'Global Category',
 filter_labels_2 = ['BU', 'Country', 'Location Code', 'Global Category', 'SKU-Desc', 'RCA Status', 'Total Inv ($K)']
 
 def get_layout():
-    global df
-    print("trigered")
+    # global df
+    # print("trigered")
     # df = pd.read_csv('data/NPI_RCA.csv')
     layout = dbc.Container([
         dcc.Store(id='data', data=df.to_dict('records')),
@@ -560,30 +577,16 @@ def get_layout():
 app.layout = get_layout()
 
 def get_inputs(df, df_new):
-    # print(df.shape)
-    # print(df_new.shape)
     key_cols = ['Week', 'SKU Code', 'Location Code']
     data_cols = ['RCA', 'Driver', 'DIOH Opp', 'Comments', 'Included in Provision', 'Timing of resolution (M)', 'RCA Status']
     df_new = df_new[key_cols + data_cols]
-    # print(df[df['Month']=='Jul-2023'])
-    # print(df_new[df_new['Week']=='202330'])
-    df = df.merge(df_new, on=key_cols, how='left')
-    # print(df[df['Month']=='Jul-2023'])
-    # print(df.columns)
     for col in data_cols:
-        # print(df[col+'_x'].value_counts())
-        # print(df[col+'_y'].value_counts())
-
-        # print(df[col+'_y'].isna().sum())
-        # print((df[col+'_y']==None).sum())
-        # print(df[col+'_x'])
-        # print(df[col+'_y'])
+        df_new = df_new.fillna('')
+    df = df.merge(df_new, on=key_cols, how='left')
+    for col in data_cols:
         df[col] = df[col+'_x'].where(df[col+'_y'].isna(), df[col+'_y'])
-        # print(df[col])
+        # df[col] = df[col+'_x'].where(df[col+'_y'] == None, df[col+'_y'])
     df = df.drop([col+'_x' for col in data_cols]+[col+'_y' for col in data_cols], axis=1)
-    # print(df.columns)
-    # print(df[df['Month']=='Jul-2023'])
-    # df.to_csv('df_m.csv', index=False)
     return df
 
 # NPI CALLBACK
@@ -624,6 +627,7 @@ def npi_callback(apply_click, clear_click, f_month, f_bu, f_country, f_location,
     Input("filter-clear-rca", "n_clicks"),
     Input("rca-check", "n_clicks"),
     Input("rca-submit", "n_clicks"),
+    Input("refresh-rca", "n_clicks"),
     State("f-rca-BU", "value"),
     State("f-rca-Country", "value"),
     State("f-rca-Location Code", "value"),
@@ -634,29 +638,39 @@ def npi_callback(apply_click, clear_click, f_month, f_bu, f_country, f_location,
     State("data-filter-rca", "data"),
     State("rca-table", "data")
 )
-def rca_callback(apply_click, clear_click, check_click, submit_click, f_bu, f_country, f_location, f_category, f_sku, f_status, f_total_inv, filters, data):
+def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_click, f_bu, f_country, f_location, f_category, f_sku, f_status, f_total_inv, filters, data):
     print(ctx.triggered_id)
-    # filters={}
-    df_new = pd.DataFrame(data)
     global df
+    if ctx.triggered_id == 'refresh-rca':
+        df = read_consolidated_file()
+        return get_rca_content(df, {}), "", False, "", False
+    df_new = pd.DataFrame(data)
+    # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['Included in Provision'])
+    # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['RCA'])
+    # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['Comments'])
+    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Included in Provision'])
+    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['RCA'])
+    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Comments'])
     df = get_inputs(df, df_new)
-
+    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Included in Provision'])
+    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['RCA'])
+    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Comments'])
+    
     if ctx.triggered_id == "rca-check":
         return get_rca_content(df_new, filters), "", False, "", False
     if ctx.triggered_id == "filter-clear-rca":
         return get_rca_content(df, {}), "", False, "", False
-    # elif ctx.triggered_id == "filter-apply-rca":
     else:
         filters_new = [f_bu, f_country, f_location, f_category, f_sku, f_status, f_total_inv]
         for i, filter in enumerate(filter_labels_2):
             filters[filter] = filters_new[i]
-        
         if get_filtered_df(df_new, filters).empty:
             return get_rca_content(df, {}), "The selected filter combination was incorrect. Please select valid filters.", True, "", False
         else:
             if ctx.triggered_id == "rca-submit":
                 save_consolidated_file(df)
                 # df = pd.read_csv('data/NPI_RCA.csv')
+                # print(df['RCA'].value_counts())
                 return get_rca_content(df, filters), "", False, "File Saved Successfully", True
             return get_rca_content(df_new, filters), "", False, "", False
     # else:

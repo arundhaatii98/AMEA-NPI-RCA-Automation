@@ -61,6 +61,9 @@ def save_consolidated_file(df):
     # df.to_csv(conso_file_path, index=False)
     df.to_csv('data/NPI_RCA.csv', index=False)
 
+def read_consolidated_file():
+    df = pd.read_csv('data/NPI_RCA.csv')
+    return df
 if __name__ == "__main__":
     df = generate_consolidated_file()
     print(df)
