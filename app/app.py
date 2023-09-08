@@ -679,5 +679,5 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
 if __name__ == "__main__":
     # app.run(debug=True, dev_tools_hot_reload_watch_interval=30, dev_tools_hot_reload_interval=30, dev_tools_hot_reload=False)
     # dev_tools_hot_reload=False,
-    app.run(debug=True)
-    # app.run(debug=False)
+    # app.run(debug=True)
+    app.run(debug=False)
