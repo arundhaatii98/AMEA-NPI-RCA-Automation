@@ -1,0 +1,90 @@
+{
+    "version": 1,
+    "metadata": {
+        "appmode": "python-dash",
+        "entrypoint": "app:app"
+    },
+    "locale": "en_US.UTF-8",
+    "python": {
+        "version": "3.7.11",
+        "package_manager": {
+            "name": "pip",
+            "version": "21.0.1",
+            "package_file": "requirements.txt"
+        }
+    },
+    "files": {
+        "app.py": {
+            "checksum": "5bedccf5c56ca0549f80463d32b24248"
+        },
+        "assets/CAT Logo.jpeg": {
+            "checksum": "99b5c9e52be727a677ffe4e9dcec5806"
+        },
+        "assets/CAT Logo.jpg": {
+            "checksum": "847cd970290173c710e84106c9354ba9"
+        },
+        "assets/CAT Logo.png": {
+            "checksum": "8010750f279c78c9f7f10e1d1fc64767"
+        },
+        "assets/Home Img.jpg": {
+            "checksum": "5c6c98d8a5f1890767dc48072a45a4fc"
+        },
+        "assets/Home Img.png": {
+            "checksum": "ed1c9c882b3ef8b1fbd8877b0235296f"
+        },
+        "assets/MDLZ Logo.jpg": {
+            "checksum": "ebe4181545f202dfd3f7551314119a26"
+        },
+        "assets/MDLZ Logo.png": {
+            "checksum": "ff33dcb3525703d8ee8990f2a1fae933"
+        },
+        "assets/MDLZBITETYPE-Regular.ttf": {
+            "checksum": "9baec048ee40fd53df2cc59b9d489588"
+        },
+        "assets/rca_mapping.csv": {
+            "checksum": "482ebf7ab30bf4d50d68236d90cdcb94"
+        },
+        "assets/style.css": {
+            "checksum": "4363720dd34d5129b8f0d5cdff1e6854"
+        },
+        "data/NPI_RCA.csv": {
+            "checksum": "00cd7ef028ad5c0b277b503bb3dd6054"
+        },
+        "data/NPI_RCA_v2.csv": {
+            "checksum": "ad03a9deb84355bac9045d447d64e671"
+        },
+        "data_consolidation copy.py": {
+            "checksum": "339f54f5af8e4e697ca738cc99b8e25e"
+        },
+        "data_consolidation.py": {
+            "checksum": "33cd285a589424a451204d40f5c51ab2"
+        },
+        "data_prep.py": {
+            "checksum": "5f934f49eff1e9a0d3d7d60fb40538a3"
+        },
+        "df.csv": {
+            "checksum": "92bb786f85d95d2f87953099ab8a17fe"
+        },
+        "df_m.csv": {
+            "checksum": "4dbbd2a07c5ca30453acbf8672ed16a6"
+        },
+        "df_new.csv": {
+            "checksum": "92bb786f85d95d2f87953099ab8a17fe"
+        },
+        "requirements.txt": {
+            "checksum": "e9e2d27c1eba9cde5b82193d64869621"
+        },
+        "__pycache__/data_consolidation.cpython-37.pyc": {
+            "checksum": "44a33e11085b61567b9a9dd4609905a7"
+        },
+        "__pycache__/data_consolidation.cpython-39.pyc": {
+            "checksum": "de6b29c0f503de763b1c1abce42dabb3"
+        },
+        "__pycache__/data_prep.cpython-37.pyc": {
+            "checksum": "a119478482658a4c3d2c4b467bef6903"
+        },
+        "__pycache__/data_prep.cpython-39.pyc": {
+            "checksum": "6018fa1d8fbd487421959898c354d9d2"
+        }
+    }
+}

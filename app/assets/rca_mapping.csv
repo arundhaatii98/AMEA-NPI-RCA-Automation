@@ -1,0 +1,18 @@
+﻿RCA,Driver,DIOH Opp
+Demand reduction (forward),Demand,Y
+Demand under-consumption,Demand,Y
+NPD assumptions,Demand,Y
+Production compliance,Supply,Y
+Incorrect Max setting,Supply,N
+Supply delays,Supply,Y
+Pre-build,Supply,N
+Run-out SKU,Supply,N
+Defective (Not saleable),Supply,Y
+Master Data Error,Supply,N
+System forecasting issue,Supply,N
+Sample stock,Supply,Y
+System issue,Supply,Y
+DC inbalance,Supply,N
+Returns,Supply,Y
+Other,Supply,Y
+Blocked Stock Sorting,Supply,Y

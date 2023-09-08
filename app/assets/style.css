@@ -1,0 +1,138 @@
+@font-face {
+    font-family: mdlz;
+    src: url(MDLZBITETYPE-Regular.ttf);
+}
+.VirtualizedSelectOption {
+    overflow: hidden;
+    font-size: .8em;
+    font-family: mdlz;
+}
+.Select-menu-outer {
+    display : block !important;
+}
+.title-bar{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.app-header{
+    font-family: mdlz;
+    font-size: 2.5rem;
+    color: #4F2170;
+    text-align: center;
+}
+.tab-container-home{
+    padding: 100px 50px;
+}
+.home-role-btn{
+    padding: 10px;
+    width: 300px;
+    background-color:#957AA9;
+    border-color:#957AA9;
+    color: white;
+    font-family: mdlz;
+    font-size: 1.5rem;
+    margin: 10px 4vw 0 0;
+}
+.home-role-btn:hover{
+    background-color: #724D8D;
+    border-color:#724D8D;
+}
+.home-role-text{
+    color: #4F2170;
+    font-family: mdlz;
+    font-size: 2rem;
+}
+.tab-container-npi-analysis{
+    padding: 0;
+}
+.tab-container-submit-rca{
+    padding: 0;
+}
+.table-container{
+    padding: 10px;
+}
+.tab-lable-items{
+    background-color: #957AA9;
+    font-size: 1.3rem;
+    color: white;
+    font-family: mdlz;
+    padding: 5px 15px;
+    margin-right: 2px;
+}
+
+.tab-lable-items:hover{
+    color: white;
+    background-color: #724D8D;
+}
+.card-filters-body{
+    padding: 0;
+    /* color: white;
+    font-family: mdlz;
+    background-color: gray; */
+}
+.card-filters-header{
+    font-family: mdlz;
+    font-size: 1.2rem;
+}
+.card-filters-row{
+    margin-top: 2vh;
+}
+.card-filters-drop{
+    background-color: #A3A3A3;
+    color: white;
+    font-size: 2vh;
+    height: 6vh;
+    font-family: mdlz;
+}
+.filter-button-container{
+    width: auto;
+    margin-right: 10px;
+}
+.filter-button{
+    padding: 6px 4px;
+    margin: 1px 0px;
+    color:white;
+    background-color:#724D8D;
+    border-color: #724D8D;
+    font-family: mdlz;
+    font-size: 1.1rem;
+}
+.card-summary-row{
+    margin-top: 2vh;
+}
+.card-summary-header{
+    background-color: #4F2170;
+    color: white;
+    font-family: mdlz;
+    font-size: 2.5vh;
+    text-align: center;
+}
+.card-summary-body{
+    font-family: mdlz;
+    font-size: 2.5vh;
+    text-align: center;
+}
+.rca-botton-button-container{
+    width: 100px;
+    margin: 20px 10px 0 0;
+}
+.rca-botton-button{
+    background-color:#724D8D;
+    border-color: #724D8D;
+    color: white;
+    font-family: mdlz;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+.card-charts{
+    margin-top: 2vh;
+}
+.card-chart-header{
+    font-family: mdlz;
+    font-size: 2vh;
+    text-align: center;
+    padding: 2px;
+}
+.card-chart-body{
+    padding: 0 5px 5px 5px;
+}
