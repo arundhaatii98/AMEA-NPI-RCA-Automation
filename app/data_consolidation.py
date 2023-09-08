@@ -58,7 +58,8 @@ def generate_consolidated_file():
     
 def save_consolidated_file(df):
     df = df[column_list]
-    df.to_csv(conso_file_path, index=False)
+    # df.to_csv(conso_file_path, index=False)
+    df.to_csv('data/NPI_RCA.csv', index=False)
 
 if __name__ == "__main__":
     df = generate_consolidated_file()
