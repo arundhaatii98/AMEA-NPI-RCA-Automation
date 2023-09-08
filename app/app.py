@@ -15,7 +15,7 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], prevent_initia
 # df = generate_consolidated_file()
 # df = pd.read_csv('data/NPI_RCA_v2.csv')
 # df = pd.read_csv('data/NPI_RCA.csv')
-df = pd.read_csv(r"/mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/NPI_RCA.csv")
+df = pd.read_csv(r"//mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/NPI_RCA.csv")
 print(df.shape)
 
 def get_app_header():
