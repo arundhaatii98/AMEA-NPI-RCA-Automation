@@ -12,9 +12,9 @@ pd.set_option('mode.chained_assignment', None)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], prevent_initial_callbacks=True)
 
-df = generate_consolidated_file()
+# df = generate_consolidated_file()
 # df = pd.read_csv('data/NPI_RCA_v2.csv')
-# df = pd.read_csv('data/NPI_RCA.csv')
+df = pd.read_csv('data/NPI_RCA.csv')
 print(df.shape)
 
 def get_app_header():
