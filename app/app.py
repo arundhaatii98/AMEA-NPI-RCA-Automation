@@ -14,7 +14,8 @@ app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], prevent_initia
 
 # df = generate_consolidated_file()
 # df = pd.read_csv('data/NPI_RCA_v2.csv')
-df = pd.read_csv('data/NPI_RCA.csv')
+# df = pd.read_csv('data/NPI_RCA.csv')
+df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\NPI_RCA.csv")
 print(df.shape)
 
 def get_app_header():
@@ -537,17 +538,24 @@ def get_save_alert():
 filter_labels_1 = ['Month', 'BU', 'Country', 'Location Code', 'Global Category', 'SKU-Desc']
 filter_labels_2 = ['BU', 'Country', 'Location Code', 'Global Category', 'SKU-Desc', 'RCA Status', 'Total Inv ($K)']
 
-app.layout = dbc.Container([
-    dcc.Store(id='data', data=df.to_dict('records')),
-    dcc.Store(id='data-filter-rca', data={}),
-    get_filters_alert('npi'),
-    get_filters_alert('rca'),
-    get_save_alert(),
-    get_app_header(),
-    get_tabs(),
-],
-fluid=True
-)
+def get_layout():
+    global df
+    print("trigered")
+    # df = pd.read_csv('data/NPI_RCA.csv')
+    layout = dbc.Container([
+        dcc.Store(id='data', data=df.to_dict('records')),
+        dcc.Store(id='data-filter-rca', data={}),
+        get_filters_alert('npi'),
+        get_filters_alert('rca'),
+        get_save_alert(),
+        get_app_header(),
+        get_tabs(),
+    ],
+    fluid=True
+    )
+    return layout
+
+app.layout = get_layout()
 
 def get_inputs(df, df_new):
     # print(df.shape)
@@ -646,7 +654,8 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, f_bu, f_co
         else:
             if ctx.triggered_id == "rca-submit":
                 save_consolidated_file(df)
-                return get_rca_content(df_new, filters), "", False, "File Saved Successfully", True
+                # df = pd.read_csv('data/NPI_RCA.csv')
+                return get_rca_content(df, filters), "", False, "File Saved Successfully", True
             return get_rca_content(df_new, filters), "", False, "", False
     # else:
         
