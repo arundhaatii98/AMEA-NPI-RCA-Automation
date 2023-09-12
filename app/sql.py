@@ -19,7 +19,7 @@ def select_driver():
 def get_sql_connection():
 
     conn = pyodbc.connect(
-        'Driver={SQLServer};'
+        'Driver={SQL Server};'
         'Server=mdzusvpcwapp200.krft.net;'
         'Database=Reporting_Global_DW;'
         'UID=S-CAT_Reporting;'
