@@ -6,7 +6,8 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 import os
-from data_consolidation import generate_consolidated_file, save_consolidated_file, read_consolidated_file
+from data_consolidation import generate_consolidated_file, save_consolidated_file, read_consolidated_file, column_list
+from sql import download_data, upload_data
 from data_prep import get_data
 pd.set_option('mode.chained_assignment', None)
 
@@ -17,7 +18,9 @@ global df
 # df = pd.read_csv('data/NPI_RCA_v2.csv')
 # df = pd.read_csv('data/NPI_RCA.csv')
 
-df = read_consolidated_file()
+# df = read_consolidated_file()
+
+df = download_data()
 
 # df = pd.read_csv("/mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/NPI_RCA.csv")
 # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\NPI_RCA.csv")
@@ -642,7 +645,8 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
     print(ctx.triggered_id)
     global df
     if ctx.triggered_id == 'refresh-rca':
-        df = read_consolidated_file()
+        # df = read_consolidated_file()
+        df = download_data()
         return get_rca_content(df, {}), "", False, "", False
     df_new = pd.DataFrame(data)
     # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['Included in Provision'])
@@ -668,7 +672,8 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
             return get_rca_content(df, {}), "The selected filter combination was incorrect. Please select valid filters.", True, "", False
         else:
             if ctx.triggered_id == "rca-submit":
-                save_consolidated_file(df)
+                # save_consolidated_file(df)
+                upload_data(df[column_list])
                 # df = pd.read_csv('data/NPI_RCA.csv')
                 # print(df['RCA'].value_counts())
                 return get_rca_content(df, filters), "", False, "File Saved Successfully", True
