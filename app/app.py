@@ -58,7 +58,7 @@ def get_filtered_df_trend(df, filters):
             df_filtered = df_filtered[df_filtered[filter].isin(filters[filter])]
     return df_filtered
 
-def get_filter_row_1(df, filters, view, filter_labels):
+def get_filter_row_npi(df, filters, view, filter_labels):
     df_filtered = get_filtered_df(df, filters)
     values = []
     for i in range(len(filter_labels)):
@@ -75,99 +75,16 @@ def get_filter_row_1(df, filters, view, filter_labels):
                         dcc.Dropdown(
                             values[i],
                             id="f-"+ view +"-"+filter_labels[i],
-                            # class_name='card-filters-drop',
                             value=filters[filter_labels[i]] if filter_labels[i] in filters else [],
                             multi=True,
                         ),
                         class_name='card-filters-body',
-                        # style={"height":"80px", "overflowY":"scroll"}
                     )
                 ]
             ),
         class_name='px-1',
         ) for i in range(len(filter_labels))
         ] 
-        +
-        [
-            dbc.Container(
-                dbc.Row([
-                    dbc.Button('Apply', id='filter-apply-'+view, class_name='filter-button-right'), 
-                    dbc.Button('Clear', id='filter-clear-'+view, class_name='filter-button-right')
-                ],
-                ),
-            class_name='filter-button-container',
-            fluid=True
-            )
-        ],
-        class_name='card-filters-row'
-    )
-    return row
-
-def get_filter_row_2(df, filters, view, filter_labels):
-    df_filtered = get_filtered_df(df, filters)
-    values = []
-    slider = filter_labels[-1]
-    filter_labels = filter_labels[:-1]
-    for i in range(len(filter_labels)):
-        if filters!={} and filter_labels[i] == list(filters.keys())[0]:
-            values.append([item for item in df[filter_labels[i]].dropna().unique()])
-        else:
-            values.append([item for item in df_filtered[filter_labels[i]].dropna().unique()])
-    row = dbc.Row(
-        [
-            dbc.Container(
-                dbc.Row([
-                    dbc.Button('Refresh', id='refresh-'+view, class_name='filter-button-left'), 
-                ],
-                ),
-            class_name='filter-button-container',
-            fluid=True
-            )
-        ]
-        +
-        [
-        dbc.Col(
-            dbc.Card(
-                [
-                    dbc.CardHeader(filter_labels[i], class_name='card-filters-header'),    
-                    dbc.CardBody(
-                        dcc.Dropdown(
-                            values[i],
-                            id="f-"+ view +"-"+filter_labels[i],
-                            # class_name='card-filters-drop',
-                            value=filters[filter_labels[i]] if filter_labels[i] in filters else [],
-                            multi=True,
-                        ),
-                        class_name='card-filters-body',
-                        # style={"height":"80px", "overflowY":"scroll"}
-                    )
-                ]
-            ),
-        class_name='px-1',
-        ) for i in range(len(filter_labels))
-        ]
-        +
-        [
-            dbc.Col(
-                dbc.Card(
-                    [
-                        dbc.CardHeader(slider, class_name='card-filters-header'),    
-                        dbc.CardBody(
-                            dcc.RangeSlider(
-                                df[slider].min(),
-                                df[slider].max(),
-                                marks=None,
-                                tooltip={"placement": "bottom", "always_visible": True},
-                                id="f-"+ view +"-"+slider
-                            ),
-                            class_name='card-filters-body',
-                            # style={"height":"80px", "overflowY":"scroll"}
-                        )
-                    ]
-                ),
-            class_name='px-1',
-            )
-        ]
         +
         [
             dbc.Container(
@@ -340,7 +257,7 @@ def get_charts_row(df, filters):
 def get_npi_content(df, filters):
     content = dbc.Container(
         dbc.Col([
-            get_filter_row_1(df, filters, "npi", filter_labels_1),
+            get_filter_row_npi(df, filters, "npi", filter_labels_1),
             get_kpi_row(df, filters),
             get_charts_row(df, filters)
         ],
@@ -350,6 +267,87 @@ def get_npi_content(df, filters):
     id='npi-content'
     )
     return content
+
+def get_filter_row_submit_rca(df, filters, view, filter_labels):
+    df_filtered = get_filtered_df(df, filters)
+    values = []
+    slider = filter_labels[-1]
+    filter_labels = filter_labels[:-1]
+    for i in range(len(filter_labels)):
+        if filters!={} and filter_labels[i] == list(filters.keys())[0]:
+            values.append([item for item in df[filter_labels[i]].dropna().unique()])
+        else:
+            values.append([item for item in df_filtered[filter_labels[i]].dropna().unique()])
+    row = dbc.Row(
+        [
+            dbc.Container(
+                dbc.Row([
+                    dbc.Button('Refresh', id='refresh-'+view, class_name='filter-button-left'), 
+                ],
+                ),
+            class_name='filter-button-container',
+            fluid=True
+            )
+        ]
+        +
+        [
+        dbc.Col(
+            dbc.Card(
+                [
+                    dbc.CardHeader(filter_labels[i], class_name='card-filters-header'),    
+                    dbc.CardBody(
+                        dcc.Dropdown(
+                            values[i],
+                            id="f-"+ view +"-"+filter_labels[i],
+                            # class_name='card-filters-drop',
+                            value=filters[filter_labels[i]] if filter_labels[i] in filters else [],
+                            multi=True,
+                        ),
+                        class_name='card-filters-body',
+                        # style={"height":"80px", "overflowY":"scroll"}
+                    )
+                ]
+            ),
+        class_name='px-1',
+        ) for i in range(len(filter_labels))
+        ]
+        +
+        [
+            dbc.Col(
+                dbc.Card(
+                    [
+                        dbc.CardHeader(slider, class_name='card-filters-header'),    
+                        dbc.CardBody(
+                            dcc.RangeSlider(
+                                df[slider].min(),
+                                df[slider].max(),
+                                marks=None,
+                                tooltip={"placement": "bottom", "always_visible": True},
+                                id="f-"+ view +"-"+slider
+                            ),
+                            class_name='card-filters-body',
+                            # style={"height":"80px", "overflowY":"scroll"}
+                        )
+                    ]
+                ),
+            class_name='px-1',
+            )
+        ]
+        +
+        [
+            dbc.Container(
+                dbc.Row([
+                    dbc.Button('Apply', id='filter-apply-'+view, class_name='filter-button-right'), 
+                    dbc.Button('Clear', id='filter-clear-'+view, class_name='filter-button-right')
+                ],
+                ),
+            class_name='filter-button-container',
+            fluid=True
+            )
+        ],
+        class_name='card-filters-row'
+    )
+    return row
 
 def get_table(df):
 
@@ -452,18 +450,18 @@ def get_table(df):
     )
     return table
 
-def get_rca_summart_table(df):
+def get_rca_summary_table(df):
     df = get_data(df, 'rca_status_summary')
     table = dash_table.DataTable(
         df.to_dict('records'),
         fill_width=False,
-        style_cell={'textAlign': 'left'},
+        style_cell={'textAlign': 'left', 'minWidth':'150px'},
     )
     return table
 
 def get_rca_row(df):
     content = dbc.Row([
-        dbc.Col(get_rca_summart_table(df)),
+        dbc.Col(get_rca_summary_table(df)),
         dbc.Container(
             dbc.Row([
                 dbc.Button('Check', id='rca-check', class_name='rca-botton-button'),
@@ -475,12 +473,12 @@ def get_rca_row(df):
     ])
     return content
 
-def get_rca_content(df, filters):    
+def get_sumbit_rca_content(df, filters):    
     df = get_data(df, 'calculate')
     df = get_filtered_df(df, filters)
     content = dbc.Container(
         dbc.Col([
-            get_filter_row_2(df, filters, "rca", filter_labels_2),
+            get_filter_row_submit_rca(df, filters, "rca", filter_labels_2),
             get_table(df),
             get_rca_row(df)
         ],
@@ -488,6 +486,71 @@ def get_rca_content(df, filters):
     fluid=True,
     class_name='tab-container-submit-rca',
     id='rca-content'
+    )
+    return content
+
+def get_filter_row_rca_adoption(df, filters, view, filter_labels):
+    df = get_filtered_df(df, filters)
+    values = []
+    for i in range(len(filter_labels)):
+        values.append([item for item in df[filter_labels[i]].dropna().unique()])
+    row = dbc.Row([
+        dbc.Col(
+            dbc.Card(
+                [
+                    dbc.CardHeader(filter_labels[i], class_name='card-filters-header'),    
+                    dbc.CardBody(
+                        dcc.Dropdown(
+                            values[i],
+                            id="f-"+ view +"-"+filter_labels[i],
+                            value=filters[filter_labels[i]] if filter_labels[i] in filters else [],
+                            multi=True,
+                        ),
+                        class_name='card-filters-body',
+                    )
+                ]
+            ),
+        class_name='px-1',
+        ) for i in range(len(filter_labels))
+        ] 
+        +
+        [
+            dbc.Container(
+                dbc.Row([
+                    dbc.Button('Apply', id='filter-apply-'+view, class_name='filter-button-right'), 
+                    dbc.Button('Clear', id='filter-clear-'+view, class_name='filter-button-right')
+                ],
+                ),
+            class_name='filter-button-container',
+            fluid=True
+            )
+        ],
+        class_name='card-filters-row'
+    )
+    return row
+
+def get_toggle_row(item):
+    count = item=='Count'
+    usd = item=='USD'
+    content = dbc.Container([
+        html.Div('Select incompleteness by >>',style={'display':'inline'}),
+        dbc.Button("Count", active=count, disabled=not count, class_name="md-2"),
+        dbc.Button("USD", active=usd, disabled=not usd, class_name="md-2"),
+    ], style={'width':'auto', 'display':'inline'},fluid=True)
+    return content
+
+def get_rca_adoption_content(df, filters):
+    content = dbc.Container(
+        dbc.Col([
+            get_filter_row_rca_adoption(df, filters, "rca-adoption", filter_labels_1),
+            get_toggle_row('USD'),
+            # get_kpi_row(df, filters),
+            # get_charts_row(df, filters)
+        ],
+        align='center'),
+    fluid=True,
+    class_name='tab-container-rca-analysis',
+    id='rca-adoption-content'
     )
     return content
 
@@ -514,7 +577,9 @@ def get_tab_content(tab_lable):
     elif tab_lable=='NPI Analysis':
         tab = get_npi_content(df, {})
     elif tab_lable=='Submit RCA':
-        tab = get_rca_content(df, {})
+        tab = get_sumbit_rca_content(df, {})
+    elif tab_lable=='RCA Adoption':
+        tab = get_rca_adoption_content(df, {})
     else:
         tab = dbc.Container(
                 'Tab-'+str(tab_lable),
@@ -532,7 +597,7 @@ def get_tabs():
             active_label_style={'backgroundColor':'#4F2170', 'color':'white'},
         )
         for i in range(5)],
-        active_tab='tab-2',
+        active_tab='tab-3',
         id='tab'
         )
     return tabs
@@ -647,7 +712,7 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
     if ctx.triggered_id == 'refresh-rca':
         # df = read_consolidated_file()
         df = download_data()
-        return get_rca_content(df, {}), "", False, "", False
+        return get_sumbit_rca_content(df, {}), "", False, "", False
     df_new = pd.DataFrame(data)
     # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['Included in Provision'])
     # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['RCA'])
@@ -661,23 +726,23 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
     # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Comments'])
     
     if ctx.triggered_id == "rca-check":
-        return get_rca_content(df_new, filters), "", False, "", False
+        return get_sumbit_rca_content(df_new, filters), "", False, "", False
     if ctx.triggered_id == "filter-clear-rca":
-        return get_rca_content(df, {}), "", False, "", False
+        return get_sumbit_rca_content(df, {}), "", False, "", False
     else:
         filters_new = [f_bu, f_country, f_location, f_category, f_sku, f_status, f_total_inv]
         for i, filter in enumerate(filter_labels_2):
             filters[filter] = filters_new[i]
         if get_filtered_df(df_new, filters).empty:
-            return get_rca_content(df, {}), "The selected filter combination was incorrect. Please select valid filters.", True, "", False
+            return get_sumbit_rca_content(df, {}), "The selected filter combination was incorrect. Please select valid filters.", True, "", False
         else:
             if ctx.triggered_id == "rca-submit":
                 # save_consolidated_file(df)
                 upload_data(df[column_list])
                 # df = pd.read_csv('data/NPI_RCA.csv')
                 # print(df['RCA'].value_counts())
-                return get_rca_content(df, filters), "", False, "File Saved Successfully", True
-            return get_rca_content(df_new, filters), "", False, "", False
+                return get_sumbit_rca_content(df, filters), "", False, "File Saved Successfully", True
+            return get_sumbit_rca_content(df_new, filters), "", False, "", False
     # else:
         
 
