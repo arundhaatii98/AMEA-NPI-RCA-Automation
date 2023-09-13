@@ -727,7 +727,7 @@ def get_tabs():
             active_label_style={'backgroundColor':'#4F2170', 'color':'white'},
         )
         for i in range(5)],
-        active_tab='tab-4',
+        active_tab='tab-0',
         id='tab'
         )
     return tabs
