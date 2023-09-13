@@ -20,9 +20,9 @@ global df
 
 # df = read_consolidated_file()
 
-# df = download_data()
+df = download_data()
 
-df = pd.read_csv("/mznapwapalt002/alteryx/MSC_CAT/Reporting/Data/NPI_RCA.csv")
+# df = pd.read_csv("/mznapwapalt002/alteryx/MSC_CAT/Reporting/Data/NPI_RCA.csv")
 # df = pd.read_csv(r"mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
 
 print(df.shape)
@@ -835,8 +835,8 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
     global df
     if ctx.triggered_id == 'refresh-rca':
         # df = read_consolidated_file()
-        # df = download_data()
-        df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
+        df = download_data()
+        # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
         return get_sumbit_rca_content(df, {}), "", False, "", False
     df_new = pd.DataFrame(data)
     df = get_inputs(df, df_new)
@@ -854,8 +854,8 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
         else:
             if ctx.triggered_id == "rca-submit":
                 # save_consolidated_file(df)
-                # upload_data(df[column_list])
-                df.to_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv", index=False)
+                upload_data(df[column_list])
+                # df.to_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv", index=False)
                 # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
                 # df = pd.read_csv('data/NPI_RCA.csv')
                 return get_sumbit_rca_content(df, filters), "", False, "File Saved Successfully", True
@@ -870,8 +870,8 @@ def rca_adoption_callback(refresh_click):
     print(ctx.triggered_id)
     global df
     # df = read_consolidated_file()
-    # df = download_data()
-    df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
+    df = download_data()
+    # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
     return get_rca_adoption_content(df, {})
 
 if __name__ == "__main__":
