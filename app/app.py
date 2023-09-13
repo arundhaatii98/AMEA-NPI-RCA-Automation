@@ -621,7 +621,7 @@ def rca_chart(i, df, mode):
     return chart
 
 def get_charts_row_rca(df, filters):
-    title_list = ['Total Blanks by BU', 'Total Blanks by Category', 'Total Blanks by Week', '% RCA by Count', 'NPI Inv ($K) by Drivers', 'RCA Breakdown']
+    title_list = ['Total Blanks by BU', 'Total Blanks by Category', 'Total Blanks by Month', '% RCA by Count', 'NPI Inv ($K) by Drivers', 'RCA Breakdown']
     # df_trend = get_filtered_df_trend(df, filters)
     df = get_filtered_df(df, filters)
     row = dbc.Col([
@@ -675,6 +675,15 @@ def get_rca_adoption_content(df, filters):
     )
     return content
 
+def get_ac_target_table():
+    df=pd.read_csv('data/NPI AC23 Targets.csv')
+    table = dash_table.DataTable(
+        df.to_dict('records'),
+        fill_width=False,
+        # style_cell={'textAlign': 'left', 'minWidth':'150px'},
+    )
+    return table
+
 def get_tab_content(tab_lable):
     roles = ['BU Supply Planning', 'Supply Planner Viewer', 'Regional Admin Team']
     if tab_lable=='Home':
@@ -701,13 +710,13 @@ def get_tab_content(tab_lable):
         tab = get_sumbit_rca_content(df, {})
     elif tab_lable=='RCA Adoption':
         tab = get_rca_adoption_content(df, {})
-    else:
-        tab = dbc.Container(
-                'Tab-'+str(tab_lable),
-                fluid=True
-            )
+    elif tab_lable=='AC Targets':
+        # tab = dbc.Container(
+        #         'Tab-'+str(tab_lable),
+        #         fluid=True
+        #     )
+        tab = get_ac_target_table()
     return tab
-
 
 def get_tabs():
     tabs = dbc.Tabs([
@@ -718,7 +727,7 @@ def get_tabs():
             active_label_style={'backgroundColor':'#4F2170', 'color':'white'},
         )
         for i in range(5)],
-        active_tab='tab-2',
+        active_tab='tab-4',
         id='tab'
         )
     return tabs
@@ -766,6 +775,7 @@ def get_layout():
 app.layout = get_layout()
 
 def get_inputs(df, df_new):
+    df_new = get_data(df_new, 'calculate')
     key_cols = ['Week', 'SKU Code', 'Location Code']
     data_cols = ['RCA', 'Driver', 'DIOH Opp', 'Comments', 'Included in Provision', 'Timing of resolution (M)', 'RCA Status']
     df_new = df_new[key_cols + data_cols]
@@ -773,10 +783,10 @@ def get_inputs(df, df_new):
         df_new = df_new.fillna('')
     df = df.merge(df_new, on=key_cols, how='left')
     for col in data_cols:
-        if col in ['Driver', 'DIOH Opp']:
-            df[col] = df[col+'_x']
-        else:
-            df[col] = df[col+'_x'].where(df[col+'_y'].isna(), df[col+'_y'])
+        # if col in ['Driver', 'DIOH Opp']:
+        #     df[col] = df[col+'_x']
+        # else:
+        df[col] = df[col+'_x'].where(df[col+'_y'].isna(), df[col+'_y'])
         # df[col] = df[col+'_x'].where(df[col+'_y'] == None, df[col+'_y'])
     df = df.drop([col+'_x' for col in data_cols]+[col+'_y' for col in data_cols], axis=1)
     return df
@@ -840,7 +850,6 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
         return get_sumbit_rca_content(df, {}), "", False, "", False
     df_new = pd.DataFrame(data)
     df = get_inputs(df, df_new)
-    
     if ctx.triggered_id == "rca-check":
         return get_sumbit_rca_content(df_new, filters), "", False, "", False
     if ctx.triggered_id == "filter-clear-rca":
