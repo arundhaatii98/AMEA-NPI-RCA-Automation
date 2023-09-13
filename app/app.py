@@ -22,8 +22,8 @@ global df
 
 # df = download_data()
 
-df = pd.read_csv("mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/Data/NPI_RCA.csv")
-# df = pd.read_csv(r"mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
+# df = pd.read_csv("mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/Data/NPI_RCA.csv")
+df = r"pd.read_csv('mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv')"
 
 print(df.shape)
 
