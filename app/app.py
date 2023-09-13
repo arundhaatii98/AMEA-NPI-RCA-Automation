@@ -20,10 +20,10 @@ global df
 
 # df = read_consolidated_file()
 
-df = download_data()
+# df = download_data()
 
 # df = pd.read_csv("/mznapwapalt002.krft.net/alteryx/MSC_CAT/Reporting/NPI_RCA.csv")
-# df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\NPI_RCA.csv")
+df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
 
 print(df.shape)
 
@@ -101,7 +101,6 @@ def get_filter_row_npi(df, filters, view, filter_labels):
     )
     return row
 
-
 def get_kpi_row(df, filters):
     df = get_filtered_df(df, filters)
     kpi = ['Total Inv ($K)', 'NPI Inv ($K)', 'Blocked Inv ($K)', 'Excess Inv ($K)', 'IWND Inv ($K)', 'NPI Inv (%)']
@@ -121,7 +120,7 @@ def get_kpi_row(df, filters):
     class_name='card-summary-row')
     return row
 
-def chart(i, df):
+def npi_chart(i, df):
     chart_height = 250
     chart_name = 'npi-'+str(i+1)
     df = get_data(df, chart_name)
@@ -163,17 +162,6 @@ def chart(i, df):
             yaxis_title=None,
             margin=dict(l=0,r=0,b=0,t=0))
         chart = dcc.Graph(figure=fig)
-    # elif chart_name=='npi-4':
-    #     fig = px.bar(df, x='Driver', y='NPI Inv ($K)', height=chart_height)
-    #     fig.update_layout(
-    #         xaxis={'showline':False, 
-    #         'showgrid':False}, 
-    #         yaxis={'showline':False}, 
-    #         plot_bgcolor='white',
-    #         xaxis_title=None,
-    #         yaxis_title=None,
-    #         margin=dict(l=0,r=0,b=0,t=0))
-    #     chart = dcc.Graph(figure=fig)
     elif chart_name=='npi-4':
         # print(df)
         chart = dash_table.DataTable(
@@ -206,7 +194,7 @@ def chart(i, df):
         html.Div('no data')
     return chart
 
-def get_charts_row(df, filters):
+def get_charts_row_npi(df, filters):
     title_list = ['NPI % by BU', 'NPI % Trend', 'NPI Split ($K) by Components', 'SKU Details', 'NPI Inv ($K) by Reason Codes']
     df_trend = get_filtered_df_trend(df, filters)
     df = get_filtered_df(df, filters)
@@ -215,21 +203,21 @@ def get_charts_row(df, filters):
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(title_list[0], className='card-chart-header'), 
-                    dbc.CardBody(chart(0, df), className='card-chart-body')
+                    dbc.CardBody(npi_chart(0, df), className='card-chart-body')
                 ], class_name='card-charts'), 
                 width=4
             ),
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(title_list[1], className='card-chart-header'), 
-                    dbc.CardBody(chart(1, df_trend), className='card-chart-body')
+                    dbc.CardBody(npi_chart(1, df_trend), className='card-chart-body')
                 ], class_name='card-charts'), 
                 width=4
             ),
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(title_list[2], className='card-chart-header'), 
-                    dbc.CardBody(chart(2, df), className='card-chart-body')
+                    dbc.CardBody(npi_chart(2, df), className='card-chart-body')
                 ], class_name='card-charts'), 
                 width=4
             )
@@ -239,13 +227,13 @@ def get_charts_row(df, filters):
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(title_list[3], className='card-chart-header'), 
-                    dbc.CardBody(chart(3, df), className='card-chart-body')
+                    dbc.CardBody(npi_chart(3, df), className='card-chart-body')
                 ], class_name='card-charts'), 
             width=8),
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(title_list[4], className='card-chart-header'), 
-                    dbc.CardBody(chart(4, df), className='card-chart-body')
+                    dbc.CardBody(npi_chart(4, df), className='card-chart-body')
                 ], class_name='card-charts'), 
             width=4)
             ]
@@ -259,7 +247,7 @@ def get_npi_content(df, filters):
         dbc.Col([
             get_filter_row_npi(df, filters, "npi", filter_labels_1),
             get_kpi_row(df, filters),
-            get_charts_row(df, filters)
+            get_charts_row_npi(df, filters)
         ],
         align='center'),
     fluid=True,
@@ -462,6 +450,7 @@ def get_rca_summary_table(df):
 def get_rca_row(df):
     content = dbc.Row([
         dbc.Col(get_rca_summary_table(df)),
+        dbc.Col(html.Img(src=get_asset_url('legend.jpg'), alt='cat-logo', height=30)),
         dbc.Container(
             dbc.Row([
                 dbc.Button('Check', id='rca-check', class_name='rca-botton-button'),
@@ -470,7 +459,9 @@ def get_rca_row(df):
             # style={'width':'100px'},
             class_name='rca-botton-button-container'
         )
-    ])
+    ],
+    class_name='rca-bottom-container'
+    )
     return content
 
 def get_sumbit_rca_content(df, filters):    
@@ -494,7 +485,20 @@ def get_filter_row_rca_adoption(df, filters, view, filter_labels):
     values = []
     for i in range(len(filter_labels)):
         values.append([item for item in df[filter_labels[i]].dropna().unique()])
-    row = dbc.Row([
+    row = dbc.Row(
+        [
+            dbc.Container(
+                dbc.Row([
+                    dbc.Button('Refresh', id='filter-refresh-'+view, class_name='filter-button-rca-left'), 
+                    dbc.Button('Export', id='filter-export-'+view, class_name='filter-button-rca-left')
+                ],
+                ),
+            class_name='filter-button-container',
+            fluid=True
+            )
+        ]
+        +
+        [
         dbc.Col(
             dbc.Card(
                 [
@@ -529,23 +533,140 @@ def get_filter_row_rca_adoption(df, filters, view, filter_labels):
     )
     return row
 
+def rca_chart(i, df, mode):
+    y_col = 'Count' if mode=='Count' else 'NPI Inv ($K)'
+    chart_height = 250
+    chart_name = 'rca-'+str(i+1)
+    df = get_data(df, chart_name)
+    if chart_name=='rca-1':
+        fig = px.bar(df, x='BU', y=y_col, height=chart_height, text=y_col)
+        fig.update_layout(
+            title_x=0.5,
+            xaxis={'showline':False,
+            'showgrid':False},
+            yaxis={'showline':False},
+            plot_bgcolor='white',
+            xaxis_title=None,
+            yaxis_title=None,
+            margin=dict(l=0,r=0,b=0,t=0)
+            )
+        chart = dcc.Graph(figure=fig)
+    elif chart_name=='rca-2':
+        fig = px.bar(df, x='Global Category', y=y_col, height=chart_height, text=y_col)
+        fig.update_layout(
+            title_x=0.5,
+            xaxis={'showline':False,
+            'showgrid':False},
+            yaxis={'showline':False},
+            plot_bgcolor='white',
+            xaxis_title=None,
+            yaxis_title=None,
+            margin=dict(l=0,r=0,b=0,t=0)
+            )
+        chart = dcc.Graph(figure=fig)
+    elif chart_name=='rca-3':
+        fig = px.bar(df, x='Month', y=y_col, height=chart_height, text=y_col)
+        fig.update_layout(
+            title_x=0.5,
+            xaxis={'showline':False,
+            'showgrid':False},
+            yaxis={'showline':False},
+            plot_bgcolor='white',
+            xaxis_title=None,
+            yaxis_title=None,
+            margin=dict(l=0,r=0,b=0,t=0)
+            )
+        chart = dcc.Graph(figure=fig)
+    elif chart_name=='rca-4':
+        fig = px.pie(df, values=y_col, names='RCA Status', height=chart_height)
+        fig.update_layout(
+            xaxis={'showline':False, 
+            'showgrid':False}, 
+            yaxis={'showline':False}, 
+            plot_bgcolor='white',
+            xaxis_title=None,
+            yaxis_title=None,
+            margin=dict(l=0,r=0,b=0,t=0))
+        chart = dcc.Graph(figure=fig)
+    elif chart_name=='rca-5':
+        fig = px.bar(df, x='Driver', y=y_col, height=chart_height, text=y_col)
+        fig.update_layout(
+            title_x=0.5,
+            xaxis={'showline':False,
+            'showgrid':False},
+            yaxis={'showline':False},
+            plot_bgcolor='white',
+            xaxis_title=None,
+            yaxis_title=None,
+            margin=dict(l=0,r=0,b=0,t=0)
+            )
+        chart = dcc.Graph(figure=fig)
+    elif chart_name=='rca-6':
+        fig = px.bar(df, x='RCA', y=y_col, height=chart_height, text=y_col)
+        fig.update_layout(
+            title_x=0.5,
+            xaxis={'showline':False,
+            'showgrid':False},
+            yaxis={'showline':False},
+            plot_bgcolor='white',
+            xaxis_title=None,
+            yaxis_title=None,
+            margin=dict(l=0,r=0,b=0,t=0)
+            )
+        x_labels = [i.replace(' ', '<br>') for i in list(df['RCA'])]
+        fig.update_xaxes(tickvals=list(df['RCA']), ticktext=x_labels)
+        chart = dcc.Graph(figure=fig)
+    else:
+        html.Div('no data')
+    return chart
+
+def get_charts_row_rca(df, filters):
+    title_list = ['Total Blanks by BU', 'Total Blanks by Category', 'Total Blanks by Week', '% RCA by Count', 'NPI Inv ($K) by Drivers', 'RCA Breakdown']
+    # df_trend = get_filtered_df_trend(df, filters)
+    df = get_filtered_df(df, filters)
+    row = dbc.Col([
+        dbc.Row([
+            dbc.Col(
+                dbc.Card([
+                    dbc.CardHeader(title_list[i], className='card-chart-header'), 
+                    dbc.CardBody(rca_chart(i, df, 'Count'), className='card-chart-body')
+                ], class_name='card-charts'), 
+                width=4
+            )
+            for i in range(3)
+            ]),
+        dbc.Row([
+            dbc.Col(
+                dbc.Card([
+                    dbc.CardHeader(title_list[i], className='card-chart-header'), 
+                    dbc.CardBody(rca_chart(i, df, 'Count'), className='card-chart-body')
+                ], class_name='card-charts'), 
+                width=4
+            )
+            for i in range(3, 6)
+            ])
+        ],
+    class_name='card-charts-col')
+    return row
+
 def get_toggle_row(item):
     count = item=='Count'
     usd = item=='USD'
     content = dbc.Container([
         html.Div('Select incompleteness by >>',style={'display':'inline'}),
-        dbc.Button("Count", active=count, disabled=not count, class_name="md-2"),
-        dbc.Button("USD", active=usd, disabled=not usd, class_name="md-2"),
-    ], style={'width':'auto', 'display':'inline'},fluid=True)
+        dbc.Button("Count", active=count, class_name="md-2 rca-adoption-toggle-button"),
+        dbc.Button("USD", active=usd, class_name="me-md-2 rca-adoption-toggle-button"),
+    ],
+    class_name='rca-adoption-toggle-container', 
+    fluid=True)
     return content
 
 def get_rca_adoption_content(df, filters):
     content = dbc.Container(
         dbc.Col([
             get_filter_row_rca_adoption(df, filters, "rca-adoption", filter_labels_1),
-            get_toggle_row('USD'),
-            # get_kpi_row(df, filters),
-            # get_charts_row(df, filters)
+            get_toggle_row('Count'),
+            get_charts_row_rca(df, filters)
         ],
         align='center'),
     fluid=True,
@@ -597,7 +718,7 @@ def get_tabs():
             active_label_style={'backgroundColor':'#4F2170', 'color':'white'},
         )
         for i in range(5)],
-        active_tab='tab-3',
+        active_tab='tab-2',
         id='tab'
         )
     return tabs
@@ -652,7 +773,10 @@ def get_inputs(df, df_new):
         df_new = df_new.fillna('')
     df = df.merge(df_new, on=key_cols, how='left')
     for col in data_cols:
-        df[col] = df[col+'_x'].where(df[col+'_y'].isna(), df[col+'_y'])
+        if col in ['Driver', 'DIOH Opp']:
+            df[col] = df[col+'_x']
+        else:
+            df[col] = df[col+'_x'].where(df[col+'_y'].isna(), df[col+'_y'])
         # df[col] = df[col+'_x'].where(df[col+'_y'] == None, df[col+'_y'])
     df = df.drop([col+'_x' for col in data_cols]+[col+'_y' for col in data_cols], axis=1)
     return df
@@ -711,19 +835,11 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
     global df
     if ctx.triggered_id == 'refresh-rca':
         # df = read_consolidated_file()
-        df = download_data()
+        # df = download_data()
+        df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
         return get_sumbit_rca_content(df, {}), "", False, "", False
     df_new = pd.DataFrame(data)
-    # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['Included in Provision'])
-    # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['RCA'])
-    # print(df_new[(df_new['SKU Code']==323248) & (df_new['Month']=='Jul-2023')]['Comments'])
-    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Included in Provision'])
-    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['RCA'])
-    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Comments'])
     df = get_inputs(df, df_new)
-    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Included in Provision'])
-    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['RCA'])
-    # print(df[(df['SKU Code']==323248) & (df['Month']=='Jul-2023')]['Comments'])
     
     if ctx.triggered_id == "rca-check":
         return get_sumbit_rca_content(df_new, filters), "", False, "", False
@@ -738,16 +854,28 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
         else:
             if ctx.triggered_id == "rca-submit":
                 # save_consolidated_file(df)
-                upload_data(df[column_list])
+                # upload_data(df[column_list])
+                df.to_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv", index=False)
+                # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
                 # df = pd.read_csv('data/NPI_RCA.csv')
-                # print(df['RCA'].value_counts())
                 return get_sumbit_rca_content(df, filters), "", False, "File Saved Successfully", True
             return get_sumbit_rca_content(df_new, filters), "", False, "", False
-    # else:
-        
+
+# RCA ADOPTION CALLBACK
+@app.callback(
+    Output("rca-adoption-content", "children"),
+    Input("filter-refresh-rca-adoption", "n_clicks"),
+)
+def rca_adoption_callback(refresh_click):
+    print(ctx.triggered_id)
+    global df
+    # df = read_consolidated_file()
+    # df = download_data()
+    df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
+    return get_rca_adoption_content(df, {})
 
 if __name__ == "__main__":
     # app.run(debug=True, dev_tools_hot_reload_watch_interval=30, dev_tools_hot_reload_interval=30, dev_tools_hot_reload=False)
     # dev_tools_hot_reload=False,
-    # app.run(debug=True)
-    app.run(debug=False)
+    app.run(debug=True)
+    # app.run(debug=False)

@@ -48,6 +48,9 @@
 .tab-container-submit-rca{
     padding: 0;
 }
+.tab-container-rca-analysis{
+    padding: 0;
+}
 .table-container{
     padding: 10px;
 }
@@ -98,6 +101,16 @@
     font-family: mdlz;
     font-size: 1.1rem;
 }
+.filter-button-rca-left{
+    margin: 1px 0px;
+    padding-left: 0;
+    padding-right: 0;
+    color:white;
+    background-color:#724D8D;
+    border-color: #724D8D;
+    font-family: mdlz;
+    font-size: 1.1rem;
+}
 .filter-button-right{
     padding: 6px 4px;
     margin: 1px 0px;
@@ -124,7 +137,9 @@
 }
 .rca-botton-button-container{
     width: 100px;
-    margin: 20px 10px 0 0;
+}
+.rca-bottom-container{
+    margin: 20px 10px;
 }
 .rca-botton-button{
     background-color:#724D8D;
@@ -133,6 +148,13 @@
     font-family: mdlz;
     font-size: 1.1rem;
     margin-bottom: 10px;
+}
+.rca-adoption-toggle-container{
+    padding: 0;
+    margin-top: 6px;
+}
+.rca-adoption-toggle-button{
+    margin-left: 10px;
 }
 .card-charts{
     margin-top: 2vh;
