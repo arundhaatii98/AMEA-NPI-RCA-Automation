@@ -49,6 +49,7 @@ def npi_chart_4(df):
 def npi_chart_5(df):
     df = df[['RCA', 'NPI Inv ($K)']]
     df['RCA'] = df['RCA'].fillna('BLANK')
+    df['RCA'] = df['RCA'].where(df['RCA']!='', 'BLANK')
     df = df.groupby(by='RCA', as_index=False).sum()
     df = df.sort_values(by='NPI Inv ($K)', ascending=False)
     df = df.iloc[:10,:]
@@ -107,9 +108,10 @@ def rca_chart_3(df):
     df = df[(df['RCA'].isna()) | (df['RCA']=='')]
     df = df[df['RCA Status'] == 'RCA Missing']
     # df = df[df['Month']=='Jul-2023']
-    df = df[['Month', 'NPI Inv ($K)']]
+    df = df[['Month', 'Date', 'NPI Inv ($K)']]
     df['Count'] = 1
-    df = df.groupby(by='Month', as_index=False).sum()
+    df = df.groupby(by=['Month', 'Date'], as_index=False).sum()
+    df = df.sort_values(by='Date')
     return df
 
 def rca_chart_4(df):
@@ -133,6 +135,7 @@ def rca_chart_6(df):
     df = df[['RCA', 'NPI Inv ($K)']]
     df['Count'] = 1
     df = df.groupby(by='RCA', as_index=False).sum()
+    df = df.iloc[:5,:]
     return df
 
 def get_data(df, id):

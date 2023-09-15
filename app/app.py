@@ -17,13 +17,13 @@ global df
 # df = generate_consolidated_file()
 # df = pd.read_csv('data/NPI_RCA_v2.csv')
 # df = pd.read_csv('data/NPI_RCA.csv')
-
+df_target = pd.read_csv('data/NPI AC23 Targets.csv')
 # df = read_consolidated_file()
 
-df = download_data()
+# df = download_data()
 
 # df = pd.read_csv("/mznapwapalt002/alteryx/MSC_CAT/Reporting/Data/NPI_RCA.csv")
-# df = pd.read_csv(r"mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
+df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
 
 print(df.shape)
 
@@ -489,8 +489,8 @@ def get_filter_row_rca_adoption(df, filters, view, filter_labels):
         [
             dbc.Container(
                 dbc.Row([
-                    dbc.Button('Refresh', id='filter-refresh-'+view, class_name='filter-button-rca-left'), 
-                    dbc.Button('Export', id='filter-export-'+view, class_name='filter-button-rca-left')
+                    dbc.Button('Refresh', id='refresh-'+view, class_name='filter-button-rca-left'), 
+                    dbc.Button('Export', id='export-'+view, class_name='filter-button-rca-left')
                 ],
                 ),
             class_name='filter-button-container',
@@ -620,7 +620,7 @@ def rca_chart(i, df, mode):
         html.Div('no data')
     return chart
 
-def get_charts_row_rca(df, filters):
+def get_charts_row_rca(df, filters, item):
     title_list = ['Total Blanks by BU', 'Total Blanks by Category', 'Total Blanks by Month', '% RCA by Count', 'NPI Inv ($K) by Drivers', 'RCA Breakdown']
     # df_trend = get_filtered_df_trend(df, filters)
     df = get_filtered_df(df, filters)
@@ -629,7 +629,7 @@ def get_charts_row_rca(df, filters):
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(title_list[i], className='card-chart-header'), 
-                    dbc.CardBody(rca_chart(i, df, 'Count'), className='card-chart-body')
+                    dbc.CardBody(rca_chart(i, df, item), className='card-chart-body')
                 ], class_name='card-charts'), 
                 width=4
             )
@@ -639,7 +639,7 @@ def get_charts_row_rca(df, filters):
             dbc.Col(
                 dbc.Card([
                     dbc.CardHeader(title_list[i], className='card-chart-header'), 
-                    dbc.CardBody(rca_chart(i, df, 'Count'), className='card-chart-body')
+                    dbc.CardBody(rca_chart(i, df, item), className='card-chart-body')
                 ], class_name='card-charts'), 
                 width=4
             )
@@ -654,19 +654,29 @@ def get_toggle_row(item):
     usd = item=='USD'
     content = dbc.Container([
         html.Div('Select incompleteness by >>',style={'display':'inline'}),
-        dbc.Button("Count", active=count, class_name="md-2 rca-adoption-toggle-button"),
-        dbc.Button("USD", active=usd, class_name="me-md-2 rca-adoption-toggle-button"),
+        dbc.Button(
+            "Count", 
+            disabled = count,
+            class_name="md-2 rca-adoption-toggle-button",
+            id="rca-adoption-toggle-count"
+        ),
+        dbc.Button(
+            "USD", 
+            disabled = usd, 
+            class_name="me-md-2 rca-adoption-toggle-button",
+            id="rca-adoption-toggle-usd"
+        ),
     ],
     class_name='rca-adoption-toggle-container', 
     fluid=True)
     return content
 
-def get_rca_adoption_content(df, filters):
+def get_rca_adoption_content(df, filters, item):
     content = dbc.Container(
         dbc.Col([
             get_filter_row_rca_adoption(df, filters, "rca-adoption", filter_labels_1),
-            get_toggle_row('Count'),
-            get_charts_row_rca(df, filters)
+            get_toggle_row(item),
+            get_charts_row_rca(df, filters, item)
         ],
         align='center'),
     fluid=True,
@@ -675,14 +685,26 @@ def get_rca_adoption_content(df, filters):
     )
     return content
 
-def get_ac_target_table():
-    df=pd.read_csv('data/NPI AC23 Targets.csv')
+def get_ac_target_table(df):
     table = dash_table.DataTable(
         df.to_dict('records'),
         fill_width=False,
-        # style_cell={'textAlign': 'left', 'minWidth':'150px'},
+        style_cell={'textAlign': 'left', 'minWidth':'80px'},
     )
     return table
+
+def get_ac_target_content(df):
+    content = dbc.Container(
+        dbc.Row([
+            dbc.Col(get_ac_target_table(df),),
+            dbc.Col(dbc.Button('Update'),)
+        ],
+        align='end'),
+    fluid=True,
+    class_name='tab-container-ac-target',
+    id='ac-target-content'
+    )
+    return content
 
 def get_tab_content(tab_lable):
     roles = ['BU Supply Planning', 'Supply Planner Viewer', 'Regional Admin Team']
@@ -709,13 +731,9 @@ def get_tab_content(tab_lable):
     elif tab_lable=='Submit RCA':
         tab = get_sumbit_rca_content(df, {})
     elif tab_lable=='RCA Adoption':
-        tab = get_rca_adoption_content(df, {})
+        tab = get_rca_adoption_content(df, {}, 'Count')
     elif tab_lable=='AC Targets':
-        # tab = dbc.Container(
-        #         'Tab-'+str(tab_lable),
-        #         fluid=True
-        #     )
-        tab = get_ac_target_table()
+        tab = get_ac_target_content(df_target)
     return tab
 
 def get_tabs():
@@ -767,6 +785,7 @@ def get_layout():
         get_save_alert(),
         get_app_header(),
         get_tabs(),
+        dcc.Download(id='export-csv'),
     ],
     fluid=True
     )
@@ -804,6 +823,7 @@ def get_inputs(df, df_new):
     State("f-npi-Location Code", "value"),
     State("f-npi-Global Category", "value"),
     State("f-npi-SKU-Desc", "value"),
+    prevent_initial_call=True,
 )
 def npi_callback(apply_click, clear_click, f_month, f_bu, f_country, f_location, f_category, f_sku):
     filters={}
@@ -838,7 +858,8 @@ def npi_callback(apply_click, clear_click, f_month, f_bu, f_country, f_location,
     State("f-rca-RCA Status", "value"),
     State("f-rca-Total Inv ($K)", "value"),
     State("data-filter-rca", "data"),
-    State("rca-table", "data")
+    State("rca-table", "data"),
+    prevent_initial_call=True,
 )
 def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_click, f_bu, f_country, f_location, f_category, f_sku, f_status, f_total_inv, filters, data):
     print(ctx.triggered_id)
@@ -873,18 +894,61 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
 # RCA ADOPTION CALLBACK
 @app.callback(
     Output("rca-adoption-content", "children"),
-    Input("filter-refresh-rca-adoption", "n_clicks"),
+    Input("refresh-rca-adoption", "n_clicks"),
+    Input("filter-apply-rca-adoption", "n_clicks"),
+    Input("filter-clear-rca-adoption", "n_clicks"),
+    Input("rca-adoption-toggle-count", "n_clicks"),
+    Input("rca-adoption-toggle-usd", "n_clicks"),
+    State("f-rca-adoption-Month", "value"),
+    State("f-rca-adoption-BU", "value"),
+    State("f-rca-adoption-Country", "value"),
+    State("f-rca-adoption-Location Code", "value"),
+    State("f-rca-adoption-Global Category", "value"),
+    State("f-rca-adoption-SKU-Desc", "value"),
+    State("rca-adoption-toggle-count", "disabled"),
+    prevent_initial_call=True,
 )
-def rca_adoption_callback(refresh_click):
+def rca_adoption_callback(refresh_click, apply_click, clear_click, count_click, usd_click, f_month, f_bu, f_country, f_location, f_category, f_sku, count_disabled):
     print(ctx.triggered_id)
     global df
-    # df = read_consolidated_file()
-    df = download_data()
-    # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
-    return get_rca_adoption_content(df, {})
+    item = 'Count' if count_disabled else 'USD'
+    if ctx.triggered_id == 'rca-adoption-toggle-count':
+        item = 'Count'
+        return get_rca_adoption_content(df, {}, item)
+    if ctx.triggered_id == 'rca-adoption-toggle-usd':
+        item = 'USD'
+        return get_rca_adoption_content(df, {}, item)
+    if ctx.triggered_id == 'refresh-rca-adoption':
+        # df = read_consolidated_file()
+        df = download_data()
+        # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
+        return get_rca_adoption_content(df, {}, item)
+    elif ctx.triggered_id == 'filter-apply-rca-adoption':
+        filters={}
+        filters_new = [f_month, f_bu, f_country, f_location, f_category, f_sku]
+        for i, filter in enumerate(filter_labels_1):
+            filters[filter] = filters_new[i]
+        return get_rca_adoption_content(df, filters, item)
+    elif ctx.triggered_id == 'filter-clear-rca-adoption':
+        return get_rca_adoption_content(df, {}, item)
+    # else:
+    #     return get_rca_adoption_content(df, {}, item)
+
+@app.callback(
+    Output("export-csv", "data"),
+    Input("export-rca-adoption", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func(export_click):
+    global df
+    if export_click:
+        print(export_click)
+        print(ctx.triggered_id)
+        return dcc.send_data_frame(df[column_list].to_csv, 'NPI_RCA_OP.csv', index = False)
+
 
 if __name__ == "__main__":
     # app.run(debug=True, dev_tools_hot_reload_watch_interval=30, dev_tools_hot_reload_interval=30, dev_tools_hot_reload=False)
     # dev_tools_hot_reload=False,
-    app.run(debug=True)
-    # app.run(debug=False)
+    # app.run(debug=True)
+    app.run(debug=False)
