@@ -9,21 +9,21 @@ import os
 from data_consolidation import generate_consolidated_file, save_consolidated_file, read_consolidated_file, column_list
 from sql import download_data, upload_data
 from data_prep import get_data
+from dash.dash_table import DataTable, FormatTemplate
 pd.set_option('mode.chained_assignment', None)
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], prevent_initial_callbacks=True)
 
 global df
+global df_target
 # df = generate_consolidated_file()
-# df = pd.read_csv('data/NPI_RCA_v2.csv')
 # df = pd.read_csv('data/NPI_RCA.csv')
-df_target = pd.read_csv('data/NPI AC23 Targets.csv')
 # df = read_consolidated_file()
+# df = generate_consolidated_file()
+df = download_data("Tbl_Dash_Test_v2")
 
-# df = download_data()
-
-# df = pd.read_csv("/mznapwapalt002/alteryx/MSC_CAT/Reporting/Data/NPI_RCA.csv")
-df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
+# df_target = pd.read_csv('data/NPI AC Targets.csv')
+df_target = download_data("Tbl_Dash_Test_v2_AC")
 
 print(df.shape)
 
@@ -136,7 +136,7 @@ def npi_chart(i, df):
             yaxis_title=None,
             margin=dict(l=0,r=0,b=0,t=0)
             )
-        # fig.update_traces(textfont_size=12, textangle=0)
+        fig.update_traces(textfont_size=12, textangle=0, marker_color='#724D8D')
         chart = dcc.Graph(figure=fig)
     elif chart_name=='npi-2':
         fig = px.line(df, x='Month', y='NPI %', markers=True, height=chart_height)
@@ -149,10 +149,10 @@ def npi_chart(i, df):
             yaxis_title=None,
             margin=dict(l=0,r=0,b=0,t=0)
             )
-        # fig.update_traces(textfont_size=12, textposition='top center')
+        fig.update_traces(marker_color='#E18719', line_color='#E18719')
         chart = dcc.Graph(figure=fig)
     elif chart_name=='npi-3':
-        fig = px.pie(df, values='NPI Components', names=df.index, height=chart_height)
+        fig = px.pie(df, values='NPI Components', names=df.index, height=chart_height, color=df.index, color_discrete_map={'Excess Inv ($K)':'#623E23', 'Blocked Inv ($K)':'#E18719', 'IWND Inv ($K)':'#287819'})
         fig.update_layout(
             xaxis={'showline':False, 
             'showgrid':False}, 
@@ -189,6 +189,8 @@ def npi_chart(i, df):
             margin=dict(l=0,r=0,b=0,t=0))
         x_labels = [i.replace(' ', '<br>') for i in list(df['RCA'])]
         fig.update_xaxes(tickvals=list(df['RCA']), ticktext=x_labels)
+        colors = ['#4F2170', '#E18719', '#287819', '#623E23', '#A52323']
+        fig.update_traces(marker_color=colors)
         chart = dcc.Graph(figure=fig)
     else:
         html.Div('no data')
@@ -550,6 +552,7 @@ def rca_chart(i, df, mode):
             yaxis_title=None,
             margin=dict(l=0,r=0,b=0,t=0)
             )
+        fig.update_traces(textfont_size=12, textangle=0, marker_color='#724D8D')
         chart = dcc.Graph(figure=fig)
     elif chart_name=='rca-2':
         fig = px.bar(df, x='Global Category', y=y_col, height=chart_height, text=y_col)
@@ -563,6 +566,7 @@ def rca_chart(i, df, mode):
             yaxis_title=None,
             margin=dict(l=0,r=0,b=0,t=0)
             )
+        fig.update_traces(textfont_size=12, textangle=0, marker_color='#724D8D')
         chart = dcc.Graph(figure=fig)
     elif chart_name=='rca-3':
         fig = px.bar(df, x='Month', y=y_col, height=chart_height, text=y_col)
@@ -576,9 +580,10 @@ def rca_chart(i, df, mode):
             yaxis_title=None,
             margin=dict(l=0,r=0,b=0,t=0)
             )
+        fig.update_traces(textfont_size=12, textangle=0, marker_color='#724D8D')
         chart = dcc.Graph(figure=fig)
     elif chart_name=='rca-4':
-        fig = px.pie(df, values=y_col, names='RCA Status', height=chart_height)
+        fig = px.pie(df, values=y_col, names='RCA Status', height=chart_height, color='RCA Status', color_discrete_map={'Not applicable':'#2D6EAA', 'RCA Missing':'#E18719', 'RCA Available':'#287819'})
         fig.update_layout(
             xaxis={'showline':False, 
             'showgrid':False}, 
@@ -600,6 +605,7 @@ def rca_chart(i, df, mode):
             yaxis_title=None,
             margin=dict(l=0,r=0,b=0,t=0)
             )
+        fig.update_traces(textfont_size=12, textangle=0, marker_color='#2D6EAA')
         chart = dcc.Graph(figure=fig)
     elif chart_name=='rca-6':
         fig = px.bar(df, x='RCA', y=y_col, height=chart_height, text=y_col)
@@ -615,13 +621,15 @@ def rca_chart(i, df, mode):
             )
         x_labels = [i.replace(' ', '<br>') for i in list(df['RCA'])]
         fig.update_xaxes(tickvals=list(df['RCA']), ticktext=x_labels)
+        colors = ['#4F2170', '#E18719', '#287819', '#623E23', '#A52323']
+        fig.update_traces(textfont_size=12, textangle=0, marker_color=colors)
         chart = dcc.Graph(figure=fig)
     else:
         html.Div('no data')
     return chart
 
 def get_charts_row_rca(df, filters, item):
-    title_list = ['Total Blanks by BU', 'Total Blanks by Category', 'Total Blanks by Month', '% RCA by Count', 'NPI Inv ($K) by Drivers', 'RCA Breakdown']
+    title_list = ['Missed RCA by BU (' + (item) + ')', 'Missed RCA by Category (' + (item) + ')', 'Missed RCA by Month (' + (item) + ')', '% RCA (' + (item) + ')', 'NPI Inv by Drivers (' + (item) + ')', 'RCA Breakdown (' + (item) + ')']
     # df_trend = get_filtered_df_trend(df, filters)
     df = get_filtered_df(df, filters)
     row = dbc.Col([
@@ -685,21 +693,72 @@ def get_rca_adoption_content(df, filters, item):
     )
     return content
 
-def get_ac_target_table(df):
+def get_ac_target_table(df, is_editable):
+    df = df.sort_values(by='BU')
+    percentage = FormatTemplate.percentage(2)
+    cols_data = []
+    for col in df.columns:
+        if col in ['BU', 'Market', 'Year']:
+            cols_data.append({"name": col, "id": col, "editable" : False})
+        else:
+            cols_data.append({"name": col, "id": col, "editable" : True if is_editable else False, "type":"numeric"})
     table = dash_table.DataTable(
         df.to_dict('records'),
+        columns=cols_data,
+        # editable=True,
         fill_width=False,
-        style_cell={'textAlign': 'left', 'minWidth':'80px'},
+        style_cell={
+            'textAlign': 'left', 
+            'minWidth':'80px', 
+            'border': '1px solid black'},
+        style_header={
+            'backgroundColor':'#4F2170',
+            'color':'#FFFFFF',
+            'fontFamily':'mdlz',
+            'border': '1px solid black'
+        },
+        style_data_conditional=[
+            {
+                'if':{
+                    'filter_query':'{Market} = "'+ col +'"',
+                },
+                'backgroundColor':'#957AA9',
+                'color':'#FFFFFF'
+            }
+            for col in ['ANZ', 'Greater China', 'India BU', 'Japan', 'MENAP', 'SEA', 'SSA', 'AMEA']
+        ],
+        id='ac-target-table'
     )
     return table
 
-def get_ac_target_content(df):
+def get_ac_target_content(df, year):
+    year_list = df['Year'].unique()
+    if year is None:
+        year = max(df['Year'])
+    is_editable = True if year == max(df['Year']) else False
+    df = df[df['Year'] == year]
     content = dbc.Container(
         dbc.Row([
-            dbc.Col(get_ac_target_table(df),),
-            dbc.Col(dbc.Button('Update'),)
+            dbc.Col(
+                dbc.Card(
+                    [
+                        dbc.CardHeader('Year', class_name='card-filters-header'),    
+                        dbc.CardBody(
+                            dcc.Dropdown(
+                            year_list,
+                            id="f-ac-target-year",
+                            multi=True,
+                            )
+                        )
+                    ]
+                ),
+                width=1
+            ),
+            dbc.Col(get_ac_target_table(df, is_editable)),
+            dbc.Col(dbc.Button('Update', disabled=not is_editable, class_name='ac-target-update-button', id='ac-target-update'),)
         ],
-        align='end'),
+        align='start',
+        class_name='ac-target-row'),
     fluid=True,
     class_name='tab-container-ac-target',
     id='ac-target-content'
@@ -733,7 +792,7 @@ def get_tab_content(tab_lable):
     elif tab_lable=='RCA Adoption':
         tab = get_rca_adoption_content(df, {}, 'Count')
     elif tab_lable=='AC Targets':
-        tab = get_ac_target_content(df_target)
+        tab = get_ac_target_content(df_target, None)
     return tab
 
 def get_tabs():
@@ -770,19 +829,27 @@ def get_save_alert():
         color="success"
     )
 
+def get_ac_target_alert():
+    return dbc.Alert(
+        id="alert-ac-target",
+        is_open=False,
+        fade=True,
+        duration=2500,
+        style={"position": "fixed", "top": 20, "right": 10, "width": 350, "zIndex": 1},
+        color="success"
+    )
+
 filter_labels_1 = ['Month', 'BU', 'Country', 'Location Code', 'Global Category', 'SKU-Desc']
 filter_labels_2 = ['BU', 'Country', 'Location Code', 'Global Category', 'SKU-Desc', 'RCA Status', 'Total Inv ($K)']
 
 def get_layout():
-    # global df
-    # print("trigered")
-    # df = pd.read_csv('data/NPI_RCA.csv')
     layout = dbc.Container([
         dcc.Store(id='data', data=df.to_dict('records')),
         dcc.Store(id='data-filter-rca', data={}),
         get_filters_alert('npi'),
         get_filters_alert('rca'),
         get_save_alert(),
+        get_ac_target_alert(),
         get_app_header(),
         get_tabs(),
         dcc.Download(id='export-csv'),
@@ -802,11 +869,7 @@ def get_inputs(df, df_new):
         df_new = df_new.fillna('')
     df = df.merge(df_new, on=key_cols, how='left')
     for col in data_cols:
-        # if col in ['Driver', 'DIOH Opp']:
-        #     df[col] = df[col+'_x']
-        # else:
         df[col] = df[col+'_x'].where(df[col+'_y'].isna(), df[col+'_y'])
-        # df[col] = df[col+'_x'].where(df[col+'_y'] == None, df[col+'_y'])
     df = df.drop([col+'_x' for col in data_cols]+[col+'_y' for col in data_cols], axis=1)
     return df
 
@@ -866,7 +929,7 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
     global df
     if ctx.triggered_id == 'refresh-rca':
         # df = read_consolidated_file()
-        df = download_data()
+        df = download_data("Tbl_Dash_Test_v2")
         # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
         return get_sumbit_rca_content(df, {}), "", False, "", False
     df_new = pd.DataFrame(data)
@@ -884,7 +947,7 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
         else:
             if ctx.triggered_id == "rca-submit":
                 # save_consolidated_file(df)
-                upload_data(df[column_list])
+                upload_data(df[column_list], "Tbl_Dash_Test_v2")
                 # df.to_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv", index=False)
                 # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
                 # df = pd.read_csv('data/NPI_RCA.csv')
@@ -920,7 +983,7 @@ def rca_adoption_callback(refresh_click, apply_click, clear_click, count_click, 
         return get_rca_adoption_content(df, {}, item)
     if ctx.triggered_id == 'refresh-rca-adoption':
         # df = read_consolidated_file()
-        df = download_data()
+        df = download_data("Tbl_Dash_Test_v2")
         # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
         return get_rca_adoption_content(df, {}, item)
     elif ctx.triggered_id == 'filter-apply-rca-adoption':
@@ -931,11 +994,10 @@ def rca_adoption_callback(refresh_click, apply_click, clear_click, count_click, 
         return get_rca_adoption_content(df, filters, item)
     elif ctx.triggered_id == 'filter-clear-rca-adoption':
         return get_rca_adoption_content(df, {}, item)
-    # else:
-    #     return get_rca_adoption_content(df, {}, item)
 
 @app.callback(
     Output("export-csv", "data"),
+    Input("export-rca-adoption", "n_clicks"),
     Input("export-rca-adoption", "n_clicks"),
     prevent_initial_call=True,
 )
@@ -946,6 +1008,35 @@ def func(export_click):
         print(ctx.triggered_id)
         return dcc.send_data_frame(df[column_list].to_csv, 'NPI_RCA_OP.csv', index = False)
 
+def update_targets(df, df_new):
+    year = df_new['Year'].unique()[0]
+    df = df[df['Year']!=year]
+    df = pd.concat([df, df_new])
+    upload_data(df, "Tbl_Dash_Test_v2_AC")
+    return df
+
+# AC TARGET CALLBACK
+@app.callback(
+    Output("ac-target-content", "children"),
+    Output("alert-ac-target", "children"),
+    Output("alert-ac-target", "is_open"),
+    Input("f-ac-target-year", "value"),
+    Input("ac-target-update", "n_clicks"),
+    State("ac-target-table","data"),
+    prevent_initial_call=True,
+)
+def ac_target(year, update_click, data):
+    global df_target
+    if ctx.triggered_id == 'ac-target-update':
+        df_new = pd.DataFrame(data)
+        df_target = update_targets(df_target, df_new)
+        return get_ac_target_content(df_target, None), 'Targets Uploaded Successfully', True
+    else:
+        if len(year) == 0:
+            year = None
+        else:
+            year = year[0]
+        return get_ac_target_content(df_target, year), '', False
 
 if __name__ == "__main__":
     # app.run(debug=True, dev_tools_hot_reload_watch_interval=30, dev_tools_hot_reload_interval=30, dev_tools_hot_reload=False)

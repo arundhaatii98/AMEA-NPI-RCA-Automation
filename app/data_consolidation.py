@@ -37,8 +37,6 @@ def get_existing_data():
 def generate_consolidated_file():
 
     df, months_available = get_existing_data()
-    # df = pd.DataFrame()
-    # months_available=[]
     for folder in os.listdir(folder_path):
         if folder not in months_available:
             print(folder)

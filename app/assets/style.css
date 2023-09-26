@@ -52,7 +52,7 @@
     padding: 0;
 }
 .tab-container-ac-target{
-    padding-top: 12px;
+    padding: 0;
 }
 .table-container{
     padding: 10px;
@@ -104,6 +104,23 @@
     font-family: mdlz;
     font-size: 1.1rem;
 }
+.filter-button-left:hover{
+    background-color:#4F2170;
+    border-color:#4F2170;
+}
+.filter-button-right{
+    padding: 6px 4px;
+    margin: 1px 0px;
+    color:white;
+    background-color:#724D8D;
+    border-color: #724D8D;
+    font-family: mdlz;
+    font-size: 1.1rem;
+}
+.filter-button-right:hover{
+    background-color:#4F2170;
+    border-color:#4F2170;
+}
 .filter-button-rca-left{
     margin: 1px 0px;
     padding-left: 0;
@@ -114,14 +131,9 @@
     font-family: mdlz;
     font-size: 1.1rem;
 }
-.filter-button-right{
-    padding: 6px 4px;
-    margin: 1px 0px;
-    color:white;
-    background-color:#724D8D;
-    border-color: #724D8D;
-    font-family: mdlz;
-    font-size: 1.1rem;
+.filter-button-rca-left:hover{
+    background-color:#4F2170;
+    border-color:#4F2170;
 }
 .card-summary-row{
     margin-top: 2vh;
@@ -159,6 +171,19 @@
 .rca-adoption-toggle-button{
     margin-left: 10px;
     width: 75px;
+    color:white;
+    background-color:#724D8D;
+    border-color: #724D8D;
+    font-family: mdlz;
+    font-size: 1.1rem;
+}
+.rca-adoption-toggle-button:disabled{
+    background-color:#724D8D;
+    border-color:#724D8D;
+}
+.rca-adoption-toggle-button:hover{
+    background-color:#4F2170;
+    border-color:#4F2170;
 }
 .card-charts{
     margin-top: 2vh;
@@ -172,3 +197,29 @@
 .card-chart-body{
     padding: 0 5px 5px 5px;
 }
+.ac-target-row{
+    padding: 15px 0;
+}
+.ac-target-update-button{
+    padding: 6px 16px;
+    color:white;
+    background-color:#724D8D;
+    border-color: #724D8D;
+    font-family: mdlz;
+    font-size: 1.1rem;
+}
+.ac-target-update-button:hover{
+    background-color:#4F2170;
+    border-color:#4F2170;
+}
+.ac-target-update-button:disabled{
+    background-color:#724D8D;
+    border-color: #724D8D;
+}
+/* td:not([data-dash-row="2"]) div.input-cell-value-shadow {
+    opacity: 1 !important
+}
+
+td:not([data-dash-row="2"]) input {
+    display: none;
+} */

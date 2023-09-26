@@ -6,13 +6,8 @@ rca_mapping = pd.read_csv('assets/rca_mapping.csv')
 
 
 def npi_chart_1(df):
-    # df['Date'] = pd.to_datetime(df['Month'], format="%b-%Y")
-    # df1 = df.drop_duplicates(subset=['Date'])
-    # df = df.sort_values(by='Week', ascending=False)
-    # latest_month = df.iloc[0, 0]
-    latest_month = df[df['Week']==df['Week'].unique().max()]['Month'].unique()[0]
-    # print(latest_month)
-    df = df[df['Month'] == latest_month]
+    # latest_month = df[df['Week']==df['Week'].unique().max()]['Month'].unique()[0]
+    # df = df[df['Month'] == latest_month]
     df = df[['BU', 'NPI Inv ($K)', 'Total Inv ($K)']]
     df = df.groupby(by='BU', as_index=False).sum()
     df['NPI %'] = df['NPI Inv ($K)']/df['Total Inv ($K)']*100
@@ -52,7 +47,7 @@ def npi_chart_5(df):
     df['RCA'] = df['RCA'].where(df['RCA']!='', 'BLANK')
     df = df.groupby(by='RCA', as_index=False).sum()
     df = df.sort_values(by='NPI Inv ($K)', ascending=False)
-    df = df.iloc[:10,:]
+    df = df.iloc[:5,:]
     return df
 
 def calculate(df):
@@ -93,6 +88,7 @@ def rca_chart_1(df):
     df = df[['BU', 'NPI Inv ($K)']]
     df['Count'] = 1
     df = df.groupby(by='BU', as_index=False).sum()
+    df['NPI Inv ($K)'] = df['NPI Inv ($K)'].round(2)
     return df
 
 def rca_chart_2(df):
@@ -102,6 +98,7 @@ def rca_chart_2(df):
     df = df[['Global Category', 'NPI Inv ($K)']]
     df['Count'] = 1
     df = df.groupby(by='Global Category', as_index=False).sum()
+    df['NPI Inv ($K)'] = df['NPI Inv ($K)'].round(2)
     return df
 
 def rca_chart_3(df):
@@ -111,6 +108,7 @@ def rca_chart_3(df):
     df = df[['Month', 'Date', 'NPI Inv ($K)']]
     df['Count'] = 1
     df = df.groupby(by=['Month', 'Date'], as_index=False).sum()
+    df['NPI Inv ($K)'] = df['NPI Inv ($K)'].round(2)
     df = df.sort_values(by='Date')
     return df
 
@@ -119,6 +117,7 @@ def rca_chart_4(df):
     df = df[['RCA Status', 'NPI Inv ($K)']]
     df['Count'] = 1
     df = df.groupby(by='RCA Status', as_index=False).sum()
+    df['NPI Inv ($K)'] = df['NPI Inv ($K)'].round(2)
     return df
 
 def rca_chart_5(df):
@@ -127,6 +126,7 @@ def rca_chart_5(df):
     df = df[['Driver', 'NPI Inv ($K)']]
     df['Count'] = 1
     df = df.groupby(by='Driver', as_index=False).sum()
+    df['NPI Inv ($K)'] = df['NPI Inv ($K)'].round(2)
     return df
 
 def rca_chart_6(df):
@@ -135,13 +135,15 @@ def rca_chart_6(df):
     df = df[['RCA', 'NPI Inv ($K)']]
     df['Count'] = 1
     df = df.groupby(by='RCA', as_index=False).sum()
+    df['NPI Inv ($K)'] = df['NPI Inv ($K)'].round(2)
     df = df.iloc[:5,:]
     return df
 
 def get_data(df, id):
-    df['Week'] = df['Week'].astype(str)
-    df['Date'] = pd.to_datetime(df['Month'], format="%b-%Y")
-    df['SKU Code'] = df['SKU Code'].astype(object)
+    if id != 'ac-target':
+        df['Week'] = df['Week'].astype(str)
+        df['Date'] = pd.to_datetime(df['Month'], format="%b-%Y")
+        df['SKU Code'] = df['SKU Code'].astype(object)
     if id == 'npi-1':
         return npi_chart_1(df)
     elif id == 'npi-2':
@@ -173,4 +175,3 @@ if __name__=='__main__':
     df = pd.read_csv('app/data/NPI_RCA_v2.csv')
     # print(df.dtypes)
     # print(get_data(df, 'npi-1'))
-    get_data(df, 'npi-1')
