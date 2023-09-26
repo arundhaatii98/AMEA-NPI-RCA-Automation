@@ -18,9 +18,9 @@ global df
 global df_target
 # df = generate_consolidated_file()
 # df = pd.read_csv('data/NPI_RCA.csv')
-# df = read_consolidated_file()
+df = read_consolidated_file()
 # df = generate_consolidated_file()
-df = download_data("Tbl_Dash_Test_v2")
+# df = download_data("Tbl_Dash_Test_v2")
 
 # df_target = pd.read_csv('data/NPI AC Targets.csv')
 df_target = download_data("Tbl_Dash_Test_v2_AC")
