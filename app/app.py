@@ -12,15 +12,15 @@ from data_prep import get_data
 from dash.dash_table import DataTable, FormatTemplate
 pd.set_option('mode.chained_assignment', None)
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], prevent_initial_callbacks=True)
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], prevent_initial_callbacks=True, suppress_callback_exceptions=True)
 
 global df
 global df_target
 # df = generate_consolidated_file()
 # df = pd.read_csv('data/NPI_RCA.csv')
-df = read_consolidated_file()
+# df = read_consolidated_file()
 # df = generate_consolidated_file()
-# df = download_data("Tbl_Dash_Test_v2")
+df = download_data("Tbl_Dash_Test_v2")
 
 # df_target = pd.read_csv('data/NPI AC Targets.csv')
 df_target = download_data("Tbl_Dash_Test_v2_AC")
@@ -795,19 +795,40 @@ def get_tab_content(tab_lable):
         tab = get_ac_target_content(df_target, None)
     return tab
 
-def get_tabs():
-    tabs = dbc.Tabs([
-        dbc.Tab(
-            get_tab_content(tab_lables[i]),
-            label=tab_lables[i],
-            label_class_name='tab-lable-items',
-            active_label_style={'backgroundColor':'#4F2170', 'color':'white'},
+def get_tabs(active_tab):
+    content = dbc.Container([
+        dbc.Button(tab_lables[i],
+            id='tab-' + str(i),
+            class_name='tab-lable-items',
+            style={'backgroundColor':'#4F2170', 'color':'white'} if tab_lables[i] == active_tab else {},
         )
-        for i in range(5)],
-        active_tab='tab-4',
-        id='tab'
-        )
-    return tabs
+        for i in range(5)]
+        +
+        [
+            get_tab_content(
+                tab_lables[
+                    tab_lables.index(active_tab)
+                ]
+            )
+        ],
+        class_name='tab-list-content',
+        fluid=True
+    )
+    return content
+
+# def get_tabs():
+#     tabs = dbc.Tabs([
+#         dbc.Tab(
+#             get_tab_content(tab_lables[i]),
+#             label=tab_lables[i],
+#             label_class_name='tab-lable-items',
+#             active_label_style={'backgroundColor':'#4F2170', 'color':'white'},
+#         )
+#         for i in range(5)],
+#         # active_tab='tab-4',
+#         id='tab'
+#         )
+#     return tabs
 
 def get_filters_alert(view):
     return dbc.Alert(
@@ -851,7 +872,12 @@ def get_layout():
         get_save_alert(),
         get_ac_target_alert(),
         get_app_header(),
-        get_tabs(),
+        dbc.Container(
+            get_tabs(tab_lables[tab_lables.index('Home')]),
+            class_name="tab-container",
+            id="tab-container",
+            fluid=True
+        ),
         dcc.Download(id='export-csv'),
     ],
     fluid=True
@@ -872,6 +898,27 @@ def get_inputs(df, df_new):
         df[col] = df[col+'_x'].where(df[col+'_y'].isna(), df[col+'_y'])
     df = df.drop([col+'_x' for col in data_cols]+[col+'_y' for col in data_cols], axis=1)
     return df
+
+def update_targets(df, df_new):
+    year = df_new['Year'].unique()[0]
+    df = df[df['Year']!=year]
+    df = pd.concat([df, df_new])
+    upload_data(df, "Tbl_Dash_Test_v2_AC")
+    return df
+
+# Tab CALLBACK
+@app.callback(
+    Output("tab-container", "children"),
+    Input("tab-0", "n_clicks"),
+    Input("tab-1", "n_clicks"),
+    Input("tab-2", "n_clicks"),
+    Input("tab-3", "n_clicks"),
+    Input("tab-4", "n_clicks"),
+    prevent_initial_call=True,
+)
+def tab_callback(t1_click,t2_click,t3_click,t4_click,t5_click):
+    tab = ctx.triggered_id
+    return get_tabs(tab_lables[int(tab[4:])])
 
 # NPI CALLBACK
 @app.callback(
@@ -927,17 +974,16 @@ def npi_callback(apply_click, clear_click, f_month, f_bu, f_country, f_location,
 def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_click, f_bu, f_country, f_location, f_category, f_sku, f_status, f_total_inv, filters, data):
     print(ctx.triggered_id)
     global df
-    if ctx.triggered_id == 'refresh-rca':
+    if refresh_click:
         # df = read_consolidated_file()
         df = download_data("Tbl_Dash_Test_v2")
-        # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
         return get_sumbit_rca_content(df, {}), "", False, "", False
     df_new = pd.DataFrame(data)
-    df = get_inputs(df, df_new)
     if ctx.triggered_id == "rca-check":
         return get_sumbit_rca_content(df_new, filters), "", False, "", False
     if ctx.triggered_id == "filter-clear-rca":
-        return get_sumbit_rca_content(df, {}), "", False, "", False
+        df_temp = get_inputs(df, df_new)
+        return get_sumbit_rca_content(df_temp, {}), "", False, "", False
     else:
         filters_new = [f_bu, f_country, f_location, f_category, f_sku, f_status, f_total_inv]
         for i, filter in enumerate(filter_labels_2):
@@ -947,10 +993,8 @@ def rca_callback(apply_click, clear_click, check_click, submit_click, refresh_cl
         else:
             if ctx.triggered_id == "rca-submit":
                 # save_consolidated_file(df)
+                df = get_inputs(df, df_new)
                 upload_data(df[column_list], "Tbl_Dash_Test_v2")
-                # df.to_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv", index=False)
-                # df = pd.read_csv(r"\\mznapwapalt002.krft.net\alteryx\MSC_CAT\Reporting\Data\NPI_RCA.csv")
-                # df = pd.read_csv('data/NPI_RCA.csv')
                 return get_sumbit_rca_content(df, filters), "", False, "File Saved Successfully", True
             return get_sumbit_rca_content(df_new, filters), "", False, "", False
 
@@ -998,22 +1042,14 @@ def rca_adoption_callback(refresh_click, apply_click, clear_click, count_click, 
 @app.callback(
     Output("export-csv", "data"),
     Input("export-rca-adoption", "n_clicks"),
-    Input("export-rca-adoption", "n_clicks"),
     prevent_initial_call=True,
 )
-def func(export_click):
+def export_callback(export_click):
     global df
     if export_click:
         print(export_click)
         print(ctx.triggered_id)
         return dcc.send_data_frame(df[column_list].to_csv, 'NPI_RCA_OP.csv', index = False)
-
-def update_targets(df, df_new):
-    year = df_new['Year'].unique()[0]
-    df = df[df['Year']!=year]
-    df = pd.concat([df, df_new])
-    upload_data(df, "Tbl_Dash_Test_v2_AC")
-    return df
 
 # AC TARGET CALLBACK
 @app.callback(
@@ -1032,7 +1068,7 @@ def ac_target(year, update_click, data):
         df_target = update_targets(df_target, df_new)
         return get_ac_target_content(df_target, None), 'Targets Uploaded Successfully', True
     else:
-        if len(year) == 0:
+        if year is None or len(year) == 0:
             year = None
         else:
             year = year[0]

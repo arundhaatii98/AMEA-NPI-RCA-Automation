@@ -42,6 +42,12 @@
     font-family: mdlz;
     font-size: 2rem;
 }
+.tab-container{
+    padding: 0;
+}
+.tab-list-content{
+    padding: 0;
+}
 .tab-container-npi-analysis{
     padding: 0;
 }
@@ -59,6 +65,7 @@
 }
 .tab-lable-items{
     background-color: #957AA9;
+    border-color: #957AA9;
     font-size: 1.3rem;
     color: white;
     font-family: mdlz;
@@ -69,6 +76,7 @@
 .tab-lable-items:hover{
     color: white;
     background-color: #724D8D;
+    border-color: #724D8D;
 }
 .card-filters-body{
     padding: 0;

@@ -70,8 +70,6 @@ def genetate_query(df, table_name):
 def execute_query(conn, cursor, sql_query, val):
     today = datetime.datetime.now()
     print("Upload Start\t:\t"+today.strftime("%H:%M:%S"))
-    print(sql_query)
-    print(val)
     cursor.executemany(sql_query, val)
     conn.commit()
 
