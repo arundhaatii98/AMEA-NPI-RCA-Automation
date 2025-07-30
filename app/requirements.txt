@@ -4,9 +4,9 @@ click==8.1.6
 colorama==0.4.6
 cryptocode==0.1
 cycler==0.11.0
-dash==2.11.1
+dash==2.14.0
 dash-ag-grid==2.4.0
-dash-bootstrap-components==1.4.2
+dash-bootstrap-components==1.5.0
 dash-core-components==2.0.0
 dash-html-components==2.0.0
 dash-table==5.0.0
